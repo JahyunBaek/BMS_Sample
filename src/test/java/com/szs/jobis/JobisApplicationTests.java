@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -31,6 +32,7 @@ class JobisApplicationTests {
 	PasswordEncoder passwordEncoder;
 
 	@Test
+	@Order(1)
 	void 회원가입() throws Exception {
 		UserDTO userDTO = UserDTO.builder()
 				.userId("test1").password("1q2w3e4e")
@@ -46,10 +48,12 @@ class JobisApplicationTests {
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
+
 	}
 
 
 	@Test
+	@Order(2)
 	void 로그인() throws Exception {
 
 	}

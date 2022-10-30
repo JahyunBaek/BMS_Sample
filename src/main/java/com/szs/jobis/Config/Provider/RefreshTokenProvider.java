@@ -35,16 +35,9 @@ public class RefreshTokenProvider extends TokenProvider {
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                //.claim(WEIGHT_KEY, tokenWeight)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setIssuedAt(IssuedAtDate)
                 .setExpiration(ExpirationDate)
                 .compact();
     }
-
-/*    public long getTokenWeight(String token) {
-        // 토큰에서 가중치를 꺼내 반환한다.
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-        return Long.valueOf(String.valueOf(claims.get(WEIGHT_KEY)));
-    }*/
 }
