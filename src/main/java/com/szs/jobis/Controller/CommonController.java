@@ -19,7 +19,7 @@ public class CommonController {
 
     private final UserServiceImpl userService;
 
-    @PostMapping(value = "/signup", produces = "application/json;charset=UTF-8")
+    @PostMapping(value = "/signup", produces = "text/plain;charset=UTF-8")
     public ResponseEntity<?> SignUp(@Valid @RequestBody UserDTO userDTO) throws Exception {
         return ResponseEntity.ok(userService.signUp(userDTO));
     }

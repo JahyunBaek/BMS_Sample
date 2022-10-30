@@ -52,6 +52,8 @@ public class UserServiceImpl implements UserService{
                 .name(userDTO.getName())
                 .regNo(passwordEncoder.encode(userDTO.getRegNo())).build();
 
+        userRepository.save(userEntity);
+
         returnJson.addProperty("status",true);
 
         return new Gson().toJson(returnJson);

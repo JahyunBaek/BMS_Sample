@@ -2,12 +2,13 @@ package com.szs.jobis;
 
 import com.google.gson.Gson;
 import com.szs.jobis.Dto.UserDTO;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.annotation.Order;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -31,9 +32,9 @@ class JobisApplicationTests {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
-	@Test
 	@Order(1)
-	void 회원가입() throws Exception {
+	@Test
+	void SignUpTest() throws Exception {
 		UserDTO userDTO = UserDTO.builder()
 				.userId("test1").password("1q2w3e4e")
 				.name("홍길동")
@@ -52,10 +53,24 @@ class JobisApplicationTests {
 	}
 
 
+	@Order(3)
 	@Test
-	@Order(2)
-	void 로그인() throws Exception {
+	void LoginTest() throws Exception {
+		//SignUpTest();
+		UserDTO userDTO = UserDTO.builder()
+				.userId("test1").password("1q2w3e4e")
+				.name("홍길동")
+				.regNo("860824-1655068").build();
 
+		String content = new Gson().toJson(userDTO);
+
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/szs/login")
+				.content(content)
+				.characterEncoding(StandardCharsets.UTF_8)
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 	}
 
 }
