@@ -2,8 +2,10 @@ package com.szs.jobis;
 
 import com.google.gson.Gson;
 import com.szs.jobis.Dto.UserDTO;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,10 +21,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class JobisApplicationTests {
 
 	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -30,7 +34,10 @@ class JobisApplicationTests {
 	private MockMvc mockMvc;
 
 	@Autowired
-	PasswordEncoder passwordEncoder;
+	private PasswordEncoder passwordEncoder;
+
+	private String AccessToken;
+	private String RefreshToken;
 
 	@Order(1)
 	@Test
@@ -53,7 +60,7 @@ class JobisApplicationTests {
 	}
 
 
-	@Order(3)
+	@Order(2)
 	@Test
 	void LoginTest() throws Exception {
 		//SignUpTest();
@@ -71,6 +78,13 @@ class JobisApplicationTests {
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
+
+		List<String> authorization = mvcResult.getResponse().getHeaders("Authorization");
+
+		AccessToken = authorization.get(0);
+		RefreshToken = authorization.get(1);
+
+
 	}
 
 }

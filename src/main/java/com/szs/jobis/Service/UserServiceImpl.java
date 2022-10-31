@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService{
                 .name(userDTO.getName())
                 .regNo(passwordEncoder.encode(userDTO.getRegNo())).build();
 
-        userRepository.save(userEntity);
+        UserEntity save = userRepository.save(userEntity);
 
         returnJson.addProperty("status",true);
 
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public ResponseAuth.Token login(String userID, String password) {
+    public ResponseAuth login(String userID, String password) {
         // 받아온 유저네임과 패스워드를 이용해 UsernamePasswordAuthenticationToken 객체 생성
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userID, password);
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService{
 
         tokenRepository.save(build);
 
-        return ResponseAuth.Token.builder()
+        return ResponseAuth.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public ResponseAuth.Token refresh(String refreshToken) throws Exception {
+    public ResponseAuth refresh(String refreshToken) throws Exception {
         if(!refreshTokenProvider.validateToken(refreshToken)) throw new InvalidRefreshTokenException();
         // 리프레시 토큰 값을 이용해 사용자를 꺼낸다.
 
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService{
         // 리프레시 토큰에 담긴 값을 그대로 액세스 토큰 생성에 활용한다.
         String accessToken = tokenProvider.createToken(authentication);
         // 기존 리프레시 토큰과 새로 만든 액세스 토큰을 반환한다.
-        return ResponseAuth.Token.builder()
+        return ResponseAuth.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

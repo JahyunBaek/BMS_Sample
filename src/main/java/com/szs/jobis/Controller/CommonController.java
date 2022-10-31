@@ -19,23 +19,24 @@ public class CommonController {
 
     private final UserServiceImpl userService;
 
-    @PostMapping(value = "/signup", produces = "text/plain;charset=UTF-8")
+    @PostMapping(value = "/signup")
     public ResponseEntity<?> SignUp(@Valid @RequestBody UserDTO userDTO) throws Exception {
         return ResponseEntity.ok(userService.signUp(userDTO));
     }
 
-    @PostMapping(value = "/login", produces = "text/plain;charset=UTF-8")
+    @PostMapping(value = "/login")
     public ResponseEntity<?> Login(@Valid @RequestBody UserDTO memberDTO) throws Exception {
-        ResponseAuth.Token token = userService.login(memberDTO.getUserId(), memberDTO.getPassword());
+        ResponseAuth token = userService.login(memberDTO.getUserId(), memberDTO.getPassword());
         // response header 에도 넣고 응답 객체에도 넣는다.
         HttpHeaders httpHeaders = new HttpHeaders();
 
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getRefreshToken());
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok().headers(httpHeaders).body(memberDTO);
     }
 
-    @PostMapping(value = "/refresh", produces = "text/plain;charset=UTF-8")
+    @PostMapping(value = "/refresh")
     public ResponseEntity<?> Refresh(@Valid @RequestBody UserDTO memberDTO) throws Exception {
         return ResponseEntity.ok(userService.signUp(memberDTO));
     }
