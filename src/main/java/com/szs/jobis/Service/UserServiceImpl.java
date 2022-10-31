@@ -114,4 +114,10 @@ public class UserServiceImpl implements UserService{
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    @Override
+    public Optional<UserEntity> me(String token) throws Exception {
+        return userRepository.findByUserId(token);
+    }
+
 }

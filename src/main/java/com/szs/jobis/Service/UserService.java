@@ -11,4 +11,5 @@ public interface UserService {
     Optional<UserEntity> findByUserId(String userId) throws Exception;
     ResponseAuth login(String username, String password) throws Exception;
     ResponseAuth refresh(String refreshToken) throws Exception;
+    Optional<UserEntity> me(String token) throws Exception;
 }

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -40,4 +42,10 @@ public class CommonController {
     public ResponseEntity<?> Refresh(@Valid @RequestBody UserDTO memberDTO) throws Exception {
         return ResponseEntity.ok(userService.signUp(memberDTO));
     }
+
+    @GetMapping(value = "/me")
+    public ResponseEntity<?> Me(@AuthenticationPrincipal User user) throws Exception {
+        return ResponseEntity.ok(userService.me(user.getUsername()));
+    }
+
 }
