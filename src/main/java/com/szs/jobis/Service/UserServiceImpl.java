@@ -6,12 +6,10 @@ import com.szs.jobis.Config.Provider.RefreshTokenProvider;
 import com.szs.jobis.Config.Provider.TokenProvider;
 import com.szs.jobis.Dto.ResponseAuth;
 import com.szs.jobis.Dto.UserDTO;
-import com.szs.jobis.Entity.TokenEntity;
-import com.szs.jobis.Entity.UserEntity;
+import com.szs.jobis.Entity.*;
 import com.szs.jobis.Exception.DuplicateUserException;
 import com.szs.jobis.Exception.InvalidRefreshTokenException;
-import com.szs.jobis.Repository.tokenRepository;
-import com.szs.jobis.Repository.userRepository;
+import com.szs.jobis.Repository.*;
 import com.szs.jobis.security.UserAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
@@ -35,7 +34,9 @@ public class UserServiceImpl implements UserService{
 
     private final userRepository userRepository;
     private final tokenRepository tokenRepository;
-
+    private final ScrapRepository scrapRepository;
+    private final ScrapIrRepository scrapIrRepository;
+    private final ScrapPayRepository scrapPayRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -120,4 +121,51 @@ public class UserServiceImpl implements UserService{
         return userRepository.findByUserId(token);
     }
 
+    @Override
+    public ScrapEntity scrap(String token) throws Exception {
+        ScrapEntity scrapEntity = new ScrapEntity();
+        scrapEntity.setUserId(token);
+        scrapEntity.set산출세액("1234");
+        ScrapPayEntity pay = new ScrapPayEntity();
+        ScrapIrEntity ir1 = new ScrapIrEntity();
+        ScrapIrEntity ir2 = new ScrapIrEntity();
+
+        pay.set기업명("temp기업");
+        ir1.set금액("1");
+        ir1.set소득구분("구분1");
+        ir2.set금액("2");
+        ir2.set소득구분("구분2");
+
+        ArrayList<ScrapIrEntity> temp = new ArrayList<>();
+
+
+        ArrayList<ScrapPayEntity> temp2 = new ArrayList<>();
+
+
+        //ScrapIrEntity save1 = scrapIrRepository.save(ir1);
+        //ScrapIrEntity save2 = scrapIrRepository.save(ir2);
+
+        //ScrapPayEntity save3 = scrapPayRepository.save(pay);
+
+        //temp.add(save1);
+        //temp.add(save2);
+        //temp2.add(save3);
+
+        scrapEntity.getScrapIR().add(ir1);
+        scrapEntity.getScrapIR().add(ir2);
+        scrapEntity.getScrapPay().add(pay);
+
+
+        //scrapEntity.setScrapIR(temp);
+        //scrapEntity.setScrapPay(temp2);
+
+        ScrapEntity save = scrapRepository.save(scrapEntity);
+
+        return save;
+    }
+    @Override
+    public Optional<ScrapEntity> scrap2(String token) throws Exception {
+        Optional<ScrapEntity> save = scrapRepository.findByUserId(token);
+       return save;
+    }
 }

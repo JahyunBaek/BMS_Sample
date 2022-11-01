@@ -44,7 +44,6 @@ public class TokenProvider {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
         long now = System.currentTimeMillis();
         Date IssuedAtDate = new Date(now);
         Date ExpirationDate = new Date(now + this.tokenValidityInMilliseconds);

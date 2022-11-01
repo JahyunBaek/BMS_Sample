@@ -14,13 +14,13 @@ import javax.persistence.Table;
 public class UserPossibleEntity {
     @Id
     @NotNull
-    private String userId;
+    private String name;
 
     @NotNull
     private String regNo;
     @Builder
-    public UserPossibleEntity(String userId,  String regNo) {
-        this.userId = userId;
+    public UserPossibleEntity(String name,  String regNo) {
+        this.name = name;
         this.regNo = regNo;
     }
 

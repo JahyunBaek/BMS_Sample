@@ -48,4 +48,12 @@ public class CommonController {
         return ResponseEntity.ok(userService.me(user.getUsername()));
     }
 
+    @PostMapping(value = "/scrap")
+    public ResponseEntity<?> Scrap(@AuthenticationPrincipal User user) throws Exception {
+        return ResponseEntity.ok(userService.scrap(user.getUsername()));
+    }
+    @PostMapping(value = "/scrap2")
+    public ResponseEntity<?> Scrap2(@AuthenticationPrincipal User user) throws Exception {
+        return ResponseEntity.ok(userService.scrap2(user.getUsername()));
+    }
 }

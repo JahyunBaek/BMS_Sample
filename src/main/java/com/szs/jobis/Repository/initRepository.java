@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface initRepository extends JpaRepository<UserPossibleEntity,String> {
-    Optional<UserPossibleEntity> findByUserId(String userId);
+    Optional<UserPossibleEntity> findByName(String Name);
+    Optional<UserPossibleEntity> findByNameAndRegNo(String userId, String regNo);
 }
