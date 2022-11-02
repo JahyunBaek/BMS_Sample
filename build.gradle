@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+	implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
 	implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.13.4'
 	implementation group: 'org.javassist', name: 'javassist', version: '3.29.2-GA'
 	implementation group: 'com.google.code.gson', name: 'gson', version: '2.10'

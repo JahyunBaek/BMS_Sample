@@ -1,4 +1,4 @@
-package com.szs.jobis.Util;
+package com.szs.jobis.util;
 
 import java.util.Base64;
 

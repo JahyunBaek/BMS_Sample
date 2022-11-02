@@ -2,7 +2,7 @@ package com.szs.jobis.AppRunner;
 
 import com.szs.jobis.Entity.UserPossibleEntity;
 import com.szs.jobis.Repository.initRepository;
-import com.szs.jobis.Util.AES256;
+import com.szs.jobis.util.AES256;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;

@@ -2,6 +2,12 @@ package com.szs.jobis.Controller;
 
 import com.szs.jobis.Dto.ResponseAuth;
 import com.szs.jobis.Dto.UserDTO;
+import com.szs.jobis.Entity.ScrapEntity;
+import com.szs.jobis.Entity.ScrapIrEntity;
+import com.szs.jobis.Entity.ScrapPayEntity;
+import com.szs.jobis.Repository.ScrapIrRepository;
+import com.szs.jobis.Repository.ScrapPayRepository;
+import com.szs.jobis.Repository.ScrapRepository;
 import com.szs.jobis.Service.UserServiceImpl;
 import com.szs.jobis.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +18,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 import javax.validation.Valid;
 
 @RestController
@@ -20,6 +29,11 @@ import javax.validation.Valid;
 public class CommonController {
 
     private final UserServiceImpl userService;
+
+    private final ScrapRepository scrapRepository;
+    private final ScrapIrRepository scrapIrRepository;
+    private final ScrapPayRepository scrapPayRepository;
+
 
     @PostMapping(value = "/signup")
     public ResponseEntity<?> SignUp(@Valid @RequestBody UserDTO userDTO) throws Exception {
@@ -52,8 +66,8 @@ public class CommonController {
     public ResponseEntity<?> Scrap(@AuthenticationPrincipal User user) throws Exception {
         return ResponseEntity.ok(userService.scrap(user.getUsername()));
     }
-    @PostMapping(value = "/scrap2")
-    public ResponseEntity<?> Scrap2(@AuthenticationPrincipal User user) throws Exception {
-        return ResponseEntity.ok(userService.scrap2(user.getUsername()));
+    @GetMapping(value = "/refund")
+    public ResponseEntity<?> Refund(@AuthenticationPrincipal User user) throws Exception {
+        return ResponseEntity.ok(userService.refund(user.getUsername()));
     }
 }

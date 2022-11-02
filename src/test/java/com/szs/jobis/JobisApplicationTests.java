@@ -1,11 +1,8 @@
 package com.szs.jobis;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.szs.jobis.Dto.UserDTO;
-import com.szs.jobis.Entity.ScrapEntity;
-import org.assertj.core.util.VisibleForTesting;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -40,16 +38,17 @@ class JobisApplicationTests {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	private String AccessToken;
-	private String RefreshToken;
 
-	@Order(1)
+	private static String AccessToken;
+	private static String RefreshToken;
+
 	@Test
+	@Order(1)
 	void SignUpTest() throws Exception {
 		UserDTO userDTO = UserDTO.builder()
 				.userId("test1").password("1q2w3e4e")
-				.name("홍길동")
-				.regNo("860824-1655068").build();
+				.name("김둘리")
+				.regNo("921108-1582816").build();
 
 		String content = new Gson().toJson(userDTO);
 
@@ -64,14 +63,14 @@ class JobisApplicationTests {
 	}
 
 
-	@Order(2)
+
 	@Test
+	@Order(2)
 	void LoginTest() throws Exception {
-		//SignUpTest();
 		UserDTO userDTO = UserDTO.builder()
 				.userId("test1").password("1q2w3e4e")
-				.name("홍길동")
-				.regNo("860824-1655068").build();
+				.name("김둘리")
+				.regNo("921108-1582816").build();
 
 		String content = new Gson().toJson(userDTO);
 
@@ -88,16 +87,45 @@ class JobisApplicationTests {
 		AccessToken = authorization.get(0);
 		RefreshToken = authorization.get(1);
 
+	}
+
+	@Test
+	@Order(3)
+	void MeTest() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/szs/me")
+				.header("Authorization",AccessToken)
+				.characterEncoding(StandardCharsets.UTF_8)
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+	}
+	@Test
+	@Order(4)
+	void scrapTest() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/szs/scrap")
+				.header("Authorization",AccessToken)
+				.characterEncoding(StandardCharsets.UTF_8)
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+
 
 	}
 
 	@Test
-	void test() throws Exception{
-		/*String json = "{\"status\":\"success\",\"data\":{\"jsonList\":{\"급여\":[{\"소득내역\":\"급여\",\"총지급액\":\"30,000,000\",\"업무시작일\":\"2020.10.02\",\"기업명\":\"(주)활빈당\",\"이름\":\"홍길동\",\"지급일\":\"2020.11.02\",\"업무종료일\":\"2021.11.02\",\"주민등록번호\":\"860824-1655068\",\"소득구분\":\"근로소득(연간)\",\"사업자등록번호\":\"012-34-56789\"}],\"산출세액\":\"600,000\",\"errMsg\":\"\",\"company\":\"삼쩜삼\",\"svcCd\":\"test01\",\"소득공제\":[{\"금액\":\"100,000\",\"소득구분\":\"보험료\"},{\"금액\":\"200,000\",\"소득구분\":\"교육비\"},{\"금액\":\"150,000\",\"소득구분\":\"기부금\"},{\"금액\":\"700,000\",\"소득구분\":\"의료비\"},{\"총납임금액\":\"1,333,333.333\",\"소득구분\":\"퇴직연금\"}]},\"appVer\":\"2021112501\",\"hostNm\":\"jobis-codetest\",\"workerResDt\":\"2022-08-16T06:27:35.160789\",\"workerReqDt\":\"2022-08-16T06:27:35.160851\"},\"errors\":{}}";
-		ObjectMapper objectMapper = new ObjectMapper();
-		ScrapEntity scrapEntity = objectMapper.readValue(json, new TypeReference<ScrapEntity>() {
-		});
-		//ScrapEntity scrapEntity = objectMapper.readValue(json,ScrapEntity.class);
-		System.out.println("test");*/
+	@Order(5)
+	void refundTest() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/szs/refund")
+				.header("Authorization",AccessToken)
+				.characterEncoding(StandardCharsets.UTF_8)
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+
+
+		System.out.println(mvcResult.getResponse().getContentAsString());
 	}
 }
