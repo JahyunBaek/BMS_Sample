@@ -45,19 +45,34 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
+        web.ignoring().mvcMatchers(
+                "/error",
+                "/favicon.ico",
+                "/swagger-ui.html",
+                "/swagger/**",
+                "/swagger-resources/**",
+                "/webjars/**",
+                "/v2/api-docs"
+        );
+/* 
         web.ignoring()
                 .antMatchers(
                         "/h2/**"
                         ,"/h2-console/**"
                         ,"/error"
                         ,"/swagger-ui.html"
-                );
+                );*/
     }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 // token을 사용하는 방식이기 때문에 csrf를 disable합니다.
+                .authorizeRequests()
+                .antMatchers("/h2-console/**", "/szs/signup", "/swagger-ui.html").permitAll()
+                .and()
+                
+                
                 .csrf()
                 .ignoringAntMatchers("/h2-console/**", "/swagger-ui.html")
                 .disable()
@@ -65,23 +80,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint) // 우리가 만든 클래스로 인증 실패 핸들링
-                .accessDeniedHandler(jwtAccessDeniedHandler) // 커스텀 인가 실패 핸들링
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler) 
 
-                // enable h2-console // embedded h2를 위한 설정
+
                 .and()
                 .headers()
                 .frameOptions()
                 .sameOrigin()
 
-                // 세션을 사용하지 않기 때문에 STATELESS로 설정
+
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-                .and()
-                .authorizeRequests()
-                .antMatchers("/h2-console/**", "/szs/signup", "/swagger-ui.html").permitAll()
 
                 // api 경로
                 .and()
@@ -89,7 +100,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/szs/signup").permitAll() // 회원 가입
                 .antMatchers("/szs/login").permitAll() // 로그인
                 .antMatchers("/szs/refresh").permitAll() // 토큰 Refresh
-                .anyRequest().authenticated() // 나머지 경로는 jwt 인증 해야함
+                .anyRequest().authenticated()
 
                 .and()
                 .apply(new JwtSecurityConfig(tokenProvider)); // JwtSecurityConfig 적용

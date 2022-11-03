@@ -286,7 +286,8 @@ public class UserServiceImpl implements UserService{
                 퇴직연금 = ir.get금액();
                 퇴직연금세액공제금액 = (퇴직연금.multiply(T015));
             }else if(section.equals("의료비")){
-                의료비공제금액 =총지급액.multiply(P3).divide(P100).subtract(ir.get금액()).multiply(P15).divide(P100);
+                BigDecimal temp = 총지급액.multiply(P3).divide(P100);
+                의료비공제금액 =ir.get금액().subtract(temp).multiply(P15).divide(P100);
                 //의료비공제금액 =총지급액.multiply(T03).subtract(ir.get금액()).multiply(T015);
                 특별세액공제금액 = 특별세액공제금액.add(의료비공제금액);
             }else if(section.equals("교육비")){

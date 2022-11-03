@@ -99,6 +99,7 @@ class JobisApplicationTests {
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
+				
 	}
 	@Test
 	@Order(4)
