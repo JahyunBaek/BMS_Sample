@@ -1,18 +1,19 @@
 package com.szs.jobis.Dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseAuth {
+    @ApiModelProperty(example = "Access Token Info")
     private String accessToken;
+    @ApiModelProperty(example = "Refresh Token Info")
     private String refreshToken;
 }

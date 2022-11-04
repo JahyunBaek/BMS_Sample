@@ -42,13 +42,16 @@ class JobisApplicationTests {
 	private static String AccessToken;
 	private static String RefreshToken;
 
+	private static final String name = "손오공";
+	private static final String regNo = "820326-2715702"; 
+
 	@Test
 	@Order(1)
 	void SignUpTest() throws Exception {
 		UserDTO userDTO = UserDTO.builder()
 				.userId("test1").password("1q2w3e4e")
-				.name("김둘리")
-				.regNo("921108-1582816").build();
+				.name(name)
+				.regNo(regNo).build();
 
 		String content = new Gson().toJson(userDTO);
 
@@ -69,8 +72,8 @@ class JobisApplicationTests {
 	void LoginTest() throws Exception {
 		UserDTO userDTO = UserDTO.builder()
 				.userId("test1").password("1q2w3e4e")
-				.name("김둘리")
-				.regNo("921108-1582816").build();
+				.name(name)
+				.regNo(regNo).build();
 
 		String content = new Gson().toJson(userDTO);
 
@@ -82,10 +85,8 @@ class JobisApplicationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 
-		List<String> authorization = mvcResult.getResponse().getHeaders("Authorization");
-
-		AccessToken = authorization.get(0);
-		RefreshToken = authorization.get(1);
+		AccessToken = mvcResult.getResponse().getHeader("Authorization");
+		RefreshToken = mvcResult.getResponse().getHeader("AuthorizationRefresh");
 
 	}
 
@@ -127,6 +128,5 @@ class JobisApplicationTests {
 				.andReturn();
 
 
-		System.out.println(mvcResult.getResponse().getContentAsString());
 	}
 }

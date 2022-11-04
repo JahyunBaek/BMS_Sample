@@ -2,16 +2,8 @@ package com.szs.jobis.Controller;
 
 import com.szs.jobis.Dto.ResponseAuth;
 import com.szs.jobis.Dto.UserDTO;
-import com.szs.jobis.Entity.ScrapEntity;
-import com.szs.jobis.Entity.ScrapIrEntity;
-import com.szs.jobis.Entity.ScrapPayEntity;
-import com.szs.jobis.Repository.ScrapIrRepository;
-import com.szs.jobis.Repository.ScrapPayRepository;
-import com.szs.jobis.Repository.ScrapRepository;
 import com.szs.jobis.Service.UserServiceImpl;
 import com.szs.jobis.security.JwtFilter;
-
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -23,9 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 import javax.validation.Valid;
 
 @RestController
@@ -35,12 +24,7 @@ public class CommonController {
 
     private final UserServiceImpl userService;
 
-    private final ScrapRepository scrapRepository;
-    private final ScrapIrRepository scrapIrRepository;
-    private final ScrapPayRepository scrapPayRepository;
-
-
-    @ApiOperation(value = "사용자 정보등록" , notes = "특정 사용자만 가입이 가능합니다.")
+    @ApiOperation(value = "사용자 정보등록 API" , notes = "특정 사용자만 가입이 가능합니다.")
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK !!"),
         @ApiResponse(code = 500, message = "Internal Server Error !!"),
@@ -51,7 +35,7 @@ public class CommonController {
         return ResponseEntity.ok(userService.signUp(userDTO));
     }
 
-    @ApiOperation(value = "로그인" , notes = "로그인을 통하여 토큰을 발급 받습니다.")
+    @ApiOperation(value = "로그인 API" , notes = "로그인을 통하여 토큰을 발급 받습니다.")
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK !!"),
         @ApiResponse(code = 500, message = "Internal Server Error !!"),
@@ -64,23 +48,12 @@ public class CommonController {
         HttpHeaders httpHeaders = new HttpHeaders();
 
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getRefreshToken());
+        httpHeaders.add(JwtFilter.REFRESH_HEADER, "Bearer " + token.getRefreshToken());
 
         return ResponseEntity.ok().headers(httpHeaders).body(memberDTO);
     }
-
-    @ApiOperation(value = "Refresh Token 발급" , notes = "토큰 재발급")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "OK !!"),
-        @ApiResponse(code = 500, message = "Internal Server Error !!"),
-        @ApiResponse(code = 404, message = "Not Found !!")
-    })
-    @PostMapping(value = "/refresh",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> Refresh(@Valid @RequestBody UserDTO memberDTO) throws Exception {
-        return ResponseEntity.ok(userService.signUp(memberDTO));
-    }
     
-    @ApiOperation(value = "회원정보 조회" , notes = "가입한 회원 정보를 가져오는 API")
+    @ApiOperation(value = "회원정보 조회 API" , notes = "가입한 회원 정보를 가져오는 API")
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK !!"),
         @ApiResponse(code = 500, message = "Internal Server Error !!"),

@@ -1,22 +1,24 @@
 package com.szs.jobis.Config.Provider;
 
-import com.szs.jobis.Repository.tokenRepository;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import com.szs.jobis.Entity.UserEntity;
+import com.szs.jobis.Repository.userRepository;
 
 import java.util.Date;
 import java.util.stream.Collectors;
 
-// 리프레시 토큰 생성, 검증
-// TokenProvider 기능을 확장
-// 토큰 생성 시 가중치를 클레임에 넣는다.
-// 토큰 검증 시 유저 가중치 > 리프레시 토큰 가중치라면 리프레시 토큰은 유효하지 않다.
+import javax.transaction.Transactional;
 
 public class RefreshTokenProvider extends TokenProvider {
+
+    
+    private static userRepository userRepository; 
 
     public RefreshTokenProvider(String secret, long tokenValidityInSeconds) {
         super(secret, tokenValidityInSeconds);
@@ -39,5 +41,19 @@ public class RefreshTokenProvider extends TokenProvider {
                 .setIssuedAt(IssuedAtDate)
                 .setExpiration(ExpirationDate)
                 .compact();
+    }
+
+    @Transactional
+    public String reissueRefreshToken(String refreshToken) throws RuntimeException{
+
+        Authentication authentication = this.getAuthentication(refreshToken);
+        UserEntity userEntity = userRepository.findByUserId(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException(authentication.getName() + "을 찾을 수 없습니다"));
+
+        // 리프레시 토큰에 담긴 값을 그대로 액세스 토큰 생성에 활용한다.
+        String NewrefreshToken = this.createToken(authentication);
+        // 기존 리프레시 토큰과 새로 만든 액세스 토큰을 반환한다.
+
+        return NewrefreshToken;
     }
 }

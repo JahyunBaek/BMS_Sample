@@ -24,6 +24,7 @@ import com.szs.jobis.util.AES256;
 
 
 import com.szs.jobis.util.ParseCalc;
+import com.szs.jobis.util.TokenStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,22 +69,29 @@ public class UserServiceImpl implements UserService{
 
     private final PasswordEncoder passwordEncoder;
 
+    //Refund
     private final String url = "https://codetest.3o3.co.kr/v2/scrap";
+    private final BigDecimal T055 = new BigDecimal("0.55");
+    private final BigDecimal T015 = new BigDecimal("0.15");
+    private final BigDecimal P3 = new BigDecimal("3");
+    private final BigDecimal P12 = new BigDecimal("12");
+    private final BigDecimal P15 = new BigDecimal("15");
+    private final BigDecimal P100 = new BigDecimal("100");
+    private final BigDecimal P0 = new BigDecimal("0");
+    private final BigDecimal 표준세액공제기준 = new BigDecimal("130000");
 
     @Transactional
     @Override
     public String signUp (UserDTO userDTO) throws Exception{
         JsonObject returnJson = new JsonObject();
-        //returnJson.addProperty("status",false);
+        returnJson.addProperty("status",false);
         if (userRepository.findByUserId(userDTO.getUserId()).orElseGet(()->null) != null) {
-            //returnJson.addProperty("message","이미 존재하는 유저 입니다.");
             throw new DuplicateUserException("이미 존재하는 유저 입니다.");
         }
 
         Optional<UserPossibleEntity> info = possibleRepository.findByName(userDTO.getName());
 
         if(info.orElseGet(()->null) == null || userDTO.getRegNo().equals(AES256.decryptAES256(info.get().getRegNo())) == false ){
-            //returnJson.addProperty("message","허용되지 않은 유저 입니다.");
             throw  new DuplicateUserException("허용되지 않은 유저 입니다.");
         }
 
@@ -113,7 +121,7 @@ public class UserServiceImpl implements UserService{
                 new UsernamePasswordAuthenticationToken(userID, password);
 
         // authenticationToken 객체를 통해 Authentication 객체 생성
-        // 이 과정에서 CustomUserDetailsService 에서 우리가 재정의한 loadUserByUsername 메서드 호출
+        // 재정의한 loadUserByUsername 메서드 호출
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         // 그 객체를 시큐리티 컨텍스트에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -137,7 +145,7 @@ public class UserServiceImpl implements UserService{
     @Transactional
     @Override
     public ResponseAuth refresh(String refreshToken) throws Exception {
-        if(!refreshTokenProvider.validateToken(refreshToken)) throw new InvalidRefreshTokenException();
+        if(refreshTokenProvider.validateToken(refreshToken) != TokenStatus.Access) throw new InvalidRefreshTokenException();
         // 리프레시 토큰 값을 이용해 사용자를 꺼낸다.
 
         Authentication authentication = refreshTokenProvider.getAuthentication(refreshToken);
@@ -244,12 +252,8 @@ public class UserServiceImpl implements UserService{
     public RefundResponse refund(String token) throws Exception {
         RefundResponse res = null;
         Optional<ScrapEntity> scrap = scrapRepository.findByUserId(token);
-        final BigDecimal T055 = new BigDecimal("0.55");
-        final BigDecimal T015 = new BigDecimal("0.15");
-        final BigDecimal P3 = new BigDecimal("3");
-        final BigDecimal P12 = new BigDecimal("12");
-        final BigDecimal P15 = new BigDecimal("15");
-        final BigDecimal P100 = new BigDecimal("100");
+        
+
         BigDecimal 결정세액 = new BigDecimal("0");
         BigDecimal 산출세액 = scrap.get().get산출세액();
 
@@ -268,8 +272,6 @@ public class UserServiceImpl implements UserService{
 
         BigDecimal 특별세액공제금액 = new BigDecimal("0");
 
-        final BigDecimal 표준세액공제 = new BigDecimal("130000");
-
         BigDecimal 퇴직연금세액공제금액 =new BigDecimal("0");
 
         String 이름 = "";
@@ -287,8 +289,8 @@ public class UserServiceImpl implements UserService{
                 퇴직연금세액공제금액 = (퇴직연금.multiply(T015));
             }else if(section.equals("의료비")){
                 BigDecimal temp = 총지급액.multiply(P3).divide(P100);
-                의료비공제금액 =ir.get금액().subtract(temp).multiply(P15).divide(P100);
-                //의료비공제금액 =총지급액.multiply(T03).subtract(ir.get금액()).multiply(T015);
+                의료비공제금액 = ir.get금액().subtract(temp).multiply(P15).divide(P100);
+                의료비공제금액 = 의료비공제금액.compareTo(P0) == -1 ? P0 : 의료비공제금액;
                 특별세액공제금액 = 특별세액공제금액.add(의료비공제금액);
             }else if(section.equals("교육비")){
                 교육비공제금액 = ir.get금액().multiply(P15).divide(P100);
@@ -302,19 +304,15 @@ public class UserServiceImpl implements UserService{
             }
         }
 
-
-        BigDecimal total = new BigDecimal("0");
-        BigDecimal 세액공제 = 특별세액공제금액.compareTo(표준세액공제) == -1 ? 표준세액공제 : 특별세액공제금액;
-
-
-        total = 근로소득세액공제금액.subtract(퇴직연금세액공제금액).subtract(세액공제);
-
-        if(total.compareTo(산출세액) ==  1){
-            퇴직연금세액공제금액 = 산출세액;
+        BigDecimal 표준세액공제금액 = new BigDecimal("0");
+        if(특별세액공제금액.compareTo(표준세액공제기준) == -1){
+            표준세액공제금액 = 표준세액공제기준;
+            특별세액공제금액 = P0;
         }
-        결정세액 = 산출세액.subtract(근로소득세액공제금액).subtract(퇴직연금세액공제금액).subtract(세액공제);
 
-        res = RefundResponse.builder().이름(이름).결정세액(ParseCalc.BigDecimalToString(결정세액))
+        결정세액 = 산출세액.subtract(근로소득세액공제금액).subtract(특별세액공제금액).subtract(표준세액공제금액).subtract(퇴직연금세액공제금액);
+
+        res = RefundResponse.builder().이름(이름).결정세액(ParseCalc.BigDecimalToString(결정세액.compareTo(P0) == -1 ? P0 : 결정세액))
                 .퇴직연금세액공제(ParseCalc.BigDecimalToString(퇴직연금세액공제금액)).build();
         return res;
     }
