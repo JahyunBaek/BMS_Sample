@@ -2,6 +2,7 @@ package com.szs.jobis.security;
 
 import com.szs.jobis.Config.Provider.RefreshTokenProvider;
 import com.szs.jobis.Config.Provider.TokenProvider;
+import com.szs.jobis.Entity.TokenEntity;
 import com.szs.jobis.util.TokenStatus;
 
 import lombok.RequiredArgsConstructor;
@@ -11,13 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,10 +34,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final RefreshTokenProvider refreshProvider;
 
-    // 실제 필터링 로직은 doFilter 안에 들어가게 된다. GenericFilterBean을 받아 구현
-    // Dofilter는 토큰의 인증정보를 SecurityContext 안에 저장하는 역할 수행
-    // 현재는 jwtFilter 통과 시 loadUserByUsername을 호출하여 디비를 거치지 않으므로 시큐리티 컨텍스트에는 엔티티 정보를 온전히 가지지 않는다
-    // 즉 loadUserByUsername을 호출하는 인증 API를 제외하고는 유저네임, 권한만 가지고 있으므로 Account 정보가 필요하다면 디비에서 꺼내와야함
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
@@ -56,6 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
             logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
         }else if(StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt) == TokenStatus.Expire){
             String refresh = resolveToken(request, REFRESH_HEADER);
+            
             if(StringUtils.hasText(refresh) && refreshProvider.validateToken(refresh) == TokenStatus.Access){
                 String newRefresh = refreshProvider.reissueRefreshToken(refresh);
                 if(StringUtils.hasText(newRefresh)){

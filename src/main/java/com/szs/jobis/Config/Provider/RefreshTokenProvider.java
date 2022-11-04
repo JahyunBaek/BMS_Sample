@@ -7,7 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.szs.jobis.Entity.TokenEntity;
 import com.szs.jobis.Entity.UserEntity;
+import com.szs.jobis.Repository.tokenRepository;
 import com.szs.jobis.Repository.userRepository;
 
 import java.util.Date;
@@ -20,6 +22,8 @@ public class RefreshTokenProvider extends TokenProvider {
     
     private static userRepository userRepository; 
 
+    private static tokenRepository tokenRepository;
+    
     public RefreshTokenProvider(String secret, long tokenValidityInSeconds) {
         super(secret, tokenValidityInSeconds);
     }
@@ -54,6 +58,12 @@ public class RefreshTokenProvider extends TokenProvider {
         String NewrefreshToken = this.createToken(authentication);
         // 기존 리프레시 토큰과 새로 만든 액세스 토큰을 반환한다.
 
+        TokenEntity build = TokenEntity.builder().id(authentication.getName()).refreshToken(NewrefreshToken)
+                .updateTimestamp(new Date(System.currentTimeMillis())).build();
+
+        tokenRepository.save(build);
+
+                
         return NewrefreshToken;
     }
 }
