@@ -142,25 +142,6 @@ public class UserServiceImpl implements UserService{
                 .build();
     }
 
-    @Transactional
-    @Override
-    public ResponseAuth refresh(String refreshToken) throws Exception {
-        if(refreshTokenProvider.validateToken(refreshToken) != TokenStatus.Access) throw new InvalidRefreshTokenException();
-        // 리프레시 토큰 값을 이용해 사용자를 꺼낸다.
-
-        Authentication authentication = refreshTokenProvider.getAuthentication(refreshToken);
-        UserEntity userEntity = userRepository.findByUserId(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException(authentication.getName() + "을 찾을 수 없습니다"));
-
-        // 리프레시 토큰에 담긴 값을 그대로 액세스 토큰 생성에 활용한다.
-        String accessToken = tokenProvider.createToken(authentication);
-        // 기존 리프레시 토큰과 새로 만든 액세스 토큰을 반환한다.
-        return ResponseAuth.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
-
     @Override
     public Optional<UserEntity> me(String token) throws Exception {
         return userRepository.findByUserId(token);
